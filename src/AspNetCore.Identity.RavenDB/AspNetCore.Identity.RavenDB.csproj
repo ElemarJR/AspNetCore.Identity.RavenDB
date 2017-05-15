@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="1.0.0" />
+    <PackageReference Include="RavenDB.Client" Version="3.5.3" />
   </ItemGroup>
 
 </Project>

@@ -14,6 +14,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C9A4ACFF-DE4
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Identity.RavenDB", "src\AspNetCore.Identity.RavenDB\AspNetCore.Identity.RavenDB.csproj", "{E9797D5F-9494-4A2D-A4D3-C8BB3F2A4A37}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BF717AD3-602D-41D2-A5EA-00508158217C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{F2D0A831-6ED7-485C-B0EC-2EA0DFB1CA2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "other\Playground\Playground.csproj", "{B330E524-DB5B-460F-9510-93015C7753D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,11 +30,16 @@ Global
 		{E9797D5F-9494-4A2D-A4D3-C8BB3F2A4A37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9797D5F-9494-4A2D-A4D3-C8BB3F2A4A37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9797D5F-9494-4A2D-A4D3-C8BB3F2A4A37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B330E524-DB5B-460F-9510-93015C7753D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B330E524-DB5B-460F-9510-93015C7753D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B330E524-DB5B-460F-9510-93015C7753D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B330E524-DB5B-460F-9510-93015C7753D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E9797D5F-9494-4A2D-A4D3-C8BB3F2A4A37} = {C9A4ACFF-DE4D-4D0B-AE57-E2CAD2A6EE65}
+		{B330E524-DB5B-460F-9510-93015C7753D4} = {F2D0A831-6ED7-485C-B0EC-2EA0DFB1CA2C}
 	EndGlobalSection
 EndGlobal
