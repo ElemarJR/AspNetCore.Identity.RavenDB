@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,16 +10,10 @@ using Raven.Client;
 
 namespace AspNetCore.Identity.RavenDB
 {
-    public class RavenDBUserStore : RavenDBUserStore<RavenDBIdentityUser>
-    {
-        public RavenDBUserStore(Func<IAsyncDocumentSession> getAsyncSessionFunc) 
-            : base(getAsyncSessionFunc)
-        {
-        }
-    }
 
     public class RavenDBUserStore<TUser> :
-        IUserStore<TUser>
+        IUserStore<TUser>,
+        IUserLoginStore<TUser> 
         where TUser : RavenDBIdentityUser
     {
         private readonly Func<IAsyncDocumentSession> _getAsyncSessionFunc;
@@ -173,11 +169,95 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
+        #region IUserLoginStore
+        public Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (login == null)
+            {
+                throw new ArgumentNullException(nameof(login));
+            }
+
+            user.AddLogin(login);
+
+            return Task.FromResult(0);
+        }
+
+        public Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (loginProvider == null)
+            {
+                throw new ArgumentNullException(nameof(loginProvider));
+            }
+
+            if (providerKey == null)
+            {
+                throw new ArgumentNullException(nameof(providerKey));
+            }
+
+            user.RemoveLogin(loginProvider, providerKey);
+
+            return Task.FromResult(0);
+        }
+
+        public Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult<IList<UserLoginInfo>>(user.Logins.ToList());
+        }
+
+        public Task<TUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (loginProvider == null)
+            {
+                throw new ArgumentNullException(nameof(loginProvider));
+            }
+
+            if (providerKey == null)
+            {
+                throw new ArgumentNullException(nameof(providerKey));
+            }
+
+            using (var session = _getAsyncSessionFunc())
+            {
+                var query =
+                    from user in session.Query<TUser>()
+                    where user.Logins.Any(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey)
+                    select user;
+
+                return query.FirstOrDefaultAsync(cancellationToken);
+            }
+        }
+        #endregion
+
         #region IDisposable
         public void Dispose()
         {
             //throw new NotImplementedException();
         }
         #endregion
+
+        
+    }
+
+    public class RavenDBUserStore : RavenDBUserStore<RavenDBIdentityUser>
+    {
+        public RavenDBUserStore(Func<IAsyncDocumentSession> getAsyncSessionFunc)
+            : base(getAsyncSessionFunc)
+        {
+        }
     }
 }
