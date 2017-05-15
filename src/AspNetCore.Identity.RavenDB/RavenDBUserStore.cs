@@ -13,7 +13,8 @@ namespace AspNetCore.Identity.RavenDB
 
     public class RavenDBUserStore<TUser> :
         IUserStore<TUser>,
-        IUserLoginStore<TUser> 
+        IUserLoginStore<TUser> ,
+        IUserPasswordStore<TUser> 
         where TUser : RavenDBIdentityUser
     {
         private readonly Func<IAsyncDocumentSession> _getAsyncSessionFunc;
@@ -243,14 +244,46 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
+        #region IUserPasswordStore
+        public Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            user.PasswordHash = passwordHash;
+
+            return Task.FromResult(0);
+        }
+
+        public Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult(user.PasswordHash);
+        }
+
+        public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult(user.PasswordHash != null);
+        }
+        #endregion
+
         #region IDisposable
         public void Dispose()
         {
             //throw new NotImplementedException();
         }
         #endregion
-
-        
     }
 
     public class RavenDBUserStore : RavenDBUserStore<RavenDBIdentityUser>

@@ -20,6 +20,7 @@ namespace AspNetCore.Identity.RavenDB
         public string Id { get; internal set; }
         public string UserName { get; internal set; }
         public string NormalizedUserName { get; internal set; }
+        public string PasswordHash { get; internal set; }
 
         internal IEnumerable<UserLoginInfo> Logins
         {
