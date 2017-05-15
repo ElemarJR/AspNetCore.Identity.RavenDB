@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <Authors>Elemar Jr</Authors>
+    <Company>Hibernating Rhinos</Company>
+    <Copyright></Copyright>
+    <PackageLicenseUrl>https://github.com/ElemarJR/AspNetCore.Identity.RavenDB/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/ElemarJR/AspNetCore.Identity.RavenDB</PackageProjectUrl>
+    <Version>0.0.1</Version>
+    <RepositoryUrl>https://github.com/ElemarJR/AspNetCore.Identity.RavenDB</RepositoryUrl>
+    <Description>RavenDB data store adaptor for ASP.NET Core Identity</Description>
+    <PackageTags>identity, ravendb, raven, aspnetcore, aspnetcoreidentity, aspnet, membership</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+    <LangVersion>7</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
