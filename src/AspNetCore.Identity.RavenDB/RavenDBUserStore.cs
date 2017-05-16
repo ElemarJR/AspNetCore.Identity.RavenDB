@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -16,7 +17,8 @@ namespace AspNetCore.Identity.RavenDB
         IUserStore<TUser>,
         IUserLoginStore<TUser>,
         IUserPasswordStore<TUser>,
-        IUserClaimStore<TUser> 
+        IUserClaimStore<TUser>,
+        IUserSecurityStampStore<TUser> 
         where TUser : RavenDBIdentityUser
     {
         private readonly Func<IAsyncDocumentSession> _getAsyncSessionFunc;
@@ -374,6 +376,34 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
+        #region IUserSecurityStampStore
+        public Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (stamp == null)
+            {
+                throw new ArgumentNullException(nameof(stamp));
+            }
+
+            user.SecurityStamp = stamp;
+            return Task.FromResult(0);
+        }
+
+        public Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult(user.SecurityStamp);
+        }
+        #endregion
+
         #region IDisposable
         public void Dispose()
         {
@@ -381,6 +411,7 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
+        
     }
 
     public class RavenDBUserStore : RavenDBUserStore<RavenDBIdentityUser>

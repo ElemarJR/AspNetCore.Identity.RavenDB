@@ -40,6 +40,8 @@ namespace AspNetCore.Identity.RavenDB
             }
         }
 
+        public string SecurityStamp { get; internal set; }
+
         internal void AddLogin(UserLoginInfo login)
         {
             if (login == null)
