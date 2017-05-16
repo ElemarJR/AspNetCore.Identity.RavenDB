@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,8 +14,9 @@ namespace AspNetCore.Identity.RavenDB
 
     public class RavenDBUserStore<TUser> :
         IUserStore<TUser>,
-        IUserLoginStore<TUser> ,
-        IUserPasswordStore<TUser> 
+        IUserLoginStore<TUser>,
+        IUserPasswordStore<TUser>,
+        IUserClaimStore<TUser> 
         where TUser : RavenDBIdentityUser
     {
         private readonly Func<IAsyncDocumentSession> _getAsyncSessionFunc;
@@ -245,7 +247,7 @@ namespace AspNetCore.Identity.RavenDB
         #endregion
 
         #region IUserPasswordStore
-        public Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken)
+        public Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (user == null)
             {
@@ -257,7 +259,7 @@ namespace AspNetCore.Identity.RavenDB
             return Task.FromResult(0);
         }
 
-        public Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
+        public Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (user == null)
             {
@@ -267,7 +269,7 @@ namespace AspNetCore.Identity.RavenDB
             return Task.FromResult(user.PasswordHash);
         }
 
-        public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
+        public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (user == null)
             {
@@ -278,12 +280,107 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
+        #region IUserClaimStore
+        public Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult<IList<Claim>>(user.Claims.Select(c => new Claim(c.Type, c.Value)).ToList());
+        }
+
+        public Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+
+            foreach (var claim in claims)
+            {
+                user.AddClaim(claim);
+            }
+
+            return Task.FromResult(0);
+        }
+
+        public Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+
+            if (newClaim == null)
+            {
+                throw new ArgumentNullException(nameof(newClaim));
+            }
+
+            user.RemoveClaim(claim);
+            user.AddClaim(newClaim);
+
+            return Task.FromResult(0);
+        }
+
+        public Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (claims == null)
+            {
+                throw new ArgumentNullException(nameof(claims));
+            }
+
+            foreach (var claim in claims)
+            {
+                user.RemoveClaim(claim);
+            }
+
+            return Task.FromResult(0);
+        }
+
+        public Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+
+            using (var session = _getAsyncSessionFunc())
+            {
+                var query =
+                    from user in session.Query<TUser>()
+                    where user.Claims.Any(c => c.Type == claim.Type && c.Value == claim.Value)
+                    select user;
+
+                // LIMIT TO 128 RESULTS
+                return query.ToListAsync(cancellationToken);
+            }
+        }
+        #endregion
+
         #region IDisposable
         public void Dispose()
         {
             //throw new NotImplementedException();
         }
         #endregion
+
     }
 
     public class RavenDBUserStore : RavenDBUserStore<RavenDBIdentityUser>
@@ -293,4 +390,6 @@ namespace AspNetCore.Identity.RavenDB
         {
         }
     }
+
+
 }

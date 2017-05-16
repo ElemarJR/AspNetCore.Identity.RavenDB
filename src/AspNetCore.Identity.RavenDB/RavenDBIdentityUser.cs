@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
 
 namespace AspNetCore.Identity.RavenDB
@@ -10,17 +8,19 @@ namespace AspNetCore.Identity.RavenDB
     public class RavenDBIdentityUser
     {
         private readonly List<UserLoginInfo> _logins;
+        private readonly List<SimplifiedClaim> _claims;
 
         public RavenDBIdentityUser(string userName)
         {
             UserName = userName ?? throw new ArgumentNullException(nameof(userName));
             _logins = new List<UserLoginInfo>();
+            _claims = new List<SimplifiedClaim>();
         }
 
         public string Id { get; internal set; }
         public string UserName { get; internal set; }
         public string NormalizedUserName { get; internal set; }
-        public string PasswordHash { get; internal set; }
+        internal string PasswordHash { get; set; }
 
         internal IEnumerable<UserLoginInfo> Logins
         {
@@ -30,6 +30,16 @@ namespace AspNetCore.Identity.RavenDB
                 if (value != null) _logins.AddRange(value);
             }
         }
+
+        internal IEnumerable<SimplifiedClaim> Claims
+        {
+            get => _claims;
+            set
+            {
+                if (value != null) _claims.AddRange(value);
+            }
+        }
+
         internal void AddLogin(UserLoginInfo login)
         {
             if (login == null)
@@ -55,6 +65,21 @@ namespace AspNetCore.Identity.RavenDB
             if (loginToRemove == null) return;
 
             _logins.Remove(loginToRemove);
+        }
+
+        internal void AddClaim(SimplifiedClaim claim)
+        {
+            if (claim == null)
+            {
+                throw new ArgumentNullException(nameof(claim));
+            }
+
+            _claims.Add(claim);
+        }
+
+        internal void RemoveClaim(SimplifiedClaim claim)
+        {
+            _claims.Remove(claim);
         }
     }
 }
