@@ -23,7 +23,8 @@ namespace AspNetCore.Identity.RavenDB
         IUserSecurityStampStore<TUser>,
         IUserTwoFactorStore<TUser>,
         IUserEmailStore<TUser>, 
-        IUserLockoutStore<TUser> 
+        IUserLockoutStore<TUser> ,
+        IUserPhoneNumberStore<TUser> 
         where TUser : RavenDBIdentityUser
         where TDocumentStore: class, IDocumentStore
     {
@@ -634,7 +635,7 @@ namespace AspNetCore.Identity.RavenDB
             return Task.FromResult(user.Email?.NormalizedAddress);
         }
 
-        public Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken)
+        public Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -654,7 +655,7 @@ namespace AspNetCore.Identity.RavenDB
         #endregion
 
         #region IUserLockoutStore
-        public Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken)
+        public Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -668,7 +669,7 @@ namespace AspNetCore.Identity.RavenDB
 
         }
 
-        public Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken)
+        public Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -691,11 +692,11 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var newAccessFailedCount = user.AccessFailedCount++;
+            var newAccessFailedCount = ++user.AccessFailedCount;
             return Task.FromResult(newAccessFailedCount);
         }
 
-        public Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+        public Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -709,7 +710,7 @@ namespace AspNetCore.Identity.RavenDB
             return Task.CompletedTask;
         }
 
-        public Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
+        public Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -722,7 +723,7 @@ namespace AspNetCore.Identity.RavenDB
             return Task.FromResult(user.AccessFailedCount);
         }
 
-        public Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken)
+        public Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -735,7 +736,7 @@ namespace AspNetCore.Identity.RavenDB
             return Task.FromResult(user.LockoutEnabled);
         }
 
-        public Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
+        public Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -751,8 +752,76 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
-        #region IDisposable
+        #region IUserPhoneNumberStore
+        public Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
 
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            user.Phone = phoneNumber;
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult(user.Phone?.Number);
+        }
+
+        public Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (user.Phone == null)
+            {
+                throw new InvalidOperationException("Cannot get the confirmation status of the phone number since the user doesn't have a phone number.");
+            }
+
+            return Task.FromResult(user.Phone.IsConfirmed);
+        }
+
+        public Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (user.Phone == null)
+            {
+                throw new InvalidOperationException("Cannot set the confirmation status of the phone number since the user doesn't have a phone number.");
+            }
+
+            user.Phone.ConfirmationTime = confirmed
+                ? (DateTime?)DateTime.UtcNow
+                : null;
+
+            return Task.CompletedTask;
+        }
+        #endregion
+
+        #region IDisposable
         private void ThrowIfDisposed()
         {
             if (_disposed)
@@ -767,6 +836,7 @@ namespace AspNetCore.Identity.RavenDB
             _disposed = true;
         }
         #endregion
+
     }
 
     public class RavenDBUserStore : RavenDBUserStore<RavenDBIdentityUser, IDocumentStore>

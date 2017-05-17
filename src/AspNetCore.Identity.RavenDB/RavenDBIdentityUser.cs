@@ -45,6 +45,7 @@ namespace AspNetCore.Identity.RavenDB
         public DateTimeOffset? LockoutEndDate { get; internal set; }
         public int AccessFailedCount { get; internal set; }
         public bool LockoutEnabled { get; internal set; }
+        public PhoneInfo Phone { get; internal set; }
 
         internal void AddLogin(UserLoginInfo login)
         {
