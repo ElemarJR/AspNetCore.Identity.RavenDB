@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Identity;
-using Raven.Abstractions.Data;
 using Raven.Abstractions.Exceptions;
 using Raven.Client;
-using Raven.Client.Document;
-using Raven.Json.Linq;
 
 namespace AspNetCore.Identity.RavenDB
 {
     public class RavenDBUserStore<TUser, TDocumentStore> :
-        IUserStore<TUser>,
+        //IUserStore<TUser>,
         IUserLoginStore<TUser>,
         IUserPasswordStore<TUser>,
         IUserClaimStore<TUser>,
@@ -174,7 +170,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var stored = await Session.LoadAsync<TUser>(user.Id);
+            var stored = await Session.LoadAsync<TUser>(user.Id, cancellationToken);
             var etag = Session.Advanced.GetEtagFor(stored);
 
             await Session.StoreAsync(user, etag, cancellationToken);
@@ -830,7 +826,7 @@ namespace AspNetCore.Identity.RavenDB
             }
         }
 
-        private bool _disposed = false;
+        private bool _disposed;
         public void Dispose()
         {
             _disposed = true;
