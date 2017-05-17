@@ -42,6 +42,9 @@ namespace AspNetCore.Identity.RavenDB
 
         public string SecurityStamp { get; internal set; }
         public EmailInfo Email { get; internal set; }
+        public DateTimeOffset? LockoutEndDate { get; internal set; }
+        public int AccessFailedCount { get; internal set; }
+        public bool LockoutEnabled { get; internal set; }
 
         internal void AddLogin(UserLoginInfo login)
         {

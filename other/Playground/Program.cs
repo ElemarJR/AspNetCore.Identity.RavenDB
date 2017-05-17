@@ -11,9 +11,16 @@ namespace Playground
         static void Main(string[] args)
         {
 
-            // REPLACING A CLAIM
-            //var userStore = new RavenDBUserStore(() => DocumentStoreHolder.Store.OpenAsyncSession());
+            var userStore = new RavenDBUserStore(() => DocumentStoreHolder.Store.OpenAsyncSession());
 
+            var user = userStore.FindByIdAsync("RavenDBIdentityUsers/1").Result;
+            Console.WriteLine(userStore.IncrementAccessFailedCountAsync(user).Result);
+            //userStore.SetEmailAsync(user, "me@elemarjr.com").Wait();
+            //userStore.SetEmailConfirmedAsync(user, true);
+            //userStore.UpdateAsync(user).Wait();
+
+            //var userRecovered = userStore.FindByEmailAsync("me@elemarjr.com").Result;
+            // REPLACING A CLAIM
             //var user = userStore.FindByIdAsync("RavenDBIdentityUsers/1").Result;
             //userStore.ReplaceClaimAsync(
             //    user,
@@ -22,7 +29,7 @@ namespace Playground
             //).Wait();
 
             //userStore.UpdateAsync(user).Wait();
-            
+
 
             // GETTING USERS USING CLAIMS
             //var users = userStore.GetUsersForClaimAsync(
