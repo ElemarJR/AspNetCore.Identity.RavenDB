@@ -41,6 +41,7 @@ namespace AspNetCore.Identity.RavenDB
         }
 
         public string SecurityStamp { get; internal set; }
+        public EmailInfo Email { get; internal set; }
 
         internal void AddLogin(UserLoginInfo login)
         {

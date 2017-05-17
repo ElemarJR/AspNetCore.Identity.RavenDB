@@ -12,14 +12,14 @@ using Raven.Client;
 
 namespace AspNetCore.Identity.RavenDB
 {
-
     public class RavenDBUserStore<TUser> :
         IUserStore<TUser>,
         IUserLoginStore<TUser>,
         IUserPasswordStore<TUser>,
         IUserClaimStore<TUser>,
         IUserSecurityStampStore<TUser>,
-        IUserTwoFactorStore<TUser>
+        IUserTwoFactorStore<TUser>,
+        IUserEmailStore<TUser> 
         where TUser : RavenDBIdentityUser
     {
         private readonly Func<IAsyncDocumentSession> _getAsyncSessionFunc;
@@ -428,6 +428,109 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
+        #region IUserEmailStore
+        public Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (email == null)
+            {
+                throw new ArgumentNullException(nameof(email));
+            }
+
+            user.Email = email;
+
+            return Task.FromResult(0);
+        }
+
+        public Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (user.Email == null)
+            {
+                throw new InvalidOperationException("Cannot get the confirmation status of the e-mail since the user doesn't have an e-mail.");
+            }
+
+            return Task.FromResult(user.Email?.Address);
+        }
+
+        public Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (user.Email == null)
+            {
+                throw new InvalidOperationException("Cannot get the confirmation status of the e-mail since the user doesn't have an e-mail.");
+            }
+
+            return Task.FromResult(user.Email.IsConfirmed);
+        }
+
+        public Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (user.Email == null)
+            {
+                throw new InvalidOperationException("Cannot set the confirmation status of the e-mail since the user doesn't have an e-mail.");
+            }
+
+            user.Email.ConfirmationTime = confirmed 
+                ? (DateTime?) DateTime.UtcNow 
+                : null;
+
+            return Task.FromResult(0);
+        }
+
+        public Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            using (var session = _getAsyncSessionFunc())
+            {
+                return session.Query<TUser>().FirstOrDefaultAsync(
+                    user => (user.Email != null && user.Email.NormalizedAddress == normalizedEmail), 
+                    token: cancellationToken);
+            }
+        }
+        public Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult(user.Email?.NormalizedAddress);
+        }
+
+        public Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            if (user.Email != null && normalizedEmail != null)
+            {
+                user.Email.NormalizedAddress = normalizedEmail;
+            }
+
+            return Task.FromResult(0);
+        }
+        #endregion
+
         #region IDisposable
         public void Dispose()
         {
@@ -435,8 +538,6 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
-
-        
     }
 
     public class RavenDBUserStore : RavenDBUserStore<RavenDBIdentityUser>
