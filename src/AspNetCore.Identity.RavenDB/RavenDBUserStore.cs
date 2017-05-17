@@ -18,7 +18,8 @@ namespace AspNetCore.Identity.RavenDB
         IUserLoginStore<TUser>,
         IUserPasswordStore<TUser>,
         IUserClaimStore<TUser>,
-        IUserSecurityStampStore<TUser> 
+        IUserSecurityStampStore<TUser>,
+        IUserTwoFactorStore<TUser>
         where TUser : RavenDBIdentityUser
     {
         private readonly Func<IAsyncDocumentSession> _getAsyncSessionFunc;
@@ -377,7 +378,7 @@ namespace AspNetCore.Identity.RavenDB
         #endregion
 
         #region IUserSecurityStampStore
-        public Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
+        public Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (user == null)
             {
@@ -393,7 +394,7 @@ namespace AspNetCore.Identity.RavenDB
             return Task.FromResult(0);
         }
 
-        public Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken)
+        public Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (user == null)
             {
@@ -404,12 +405,36 @@ namespace AspNetCore.Identity.RavenDB
         }
         #endregion
 
+        #region IUserTwoFactorStore
+        public Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            user.UsesTwoFactorAuthentication = enabled;
+            return Task.FromResult(0);
+        }
+
+        public Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return Task.FromResult(user.UsesTwoFactorAuthentication);
+        }
+        #endregion
+
         #region IDisposable
         public void Dispose()
         {
             //throw new NotImplementedException();
         }
         #endregion
+
 
         
     }

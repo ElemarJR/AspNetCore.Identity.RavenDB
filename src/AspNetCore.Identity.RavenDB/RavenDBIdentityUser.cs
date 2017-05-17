@@ -20,21 +20,21 @@ namespace AspNetCore.Identity.RavenDB
         public string Id { get; internal set; }
         public string UserName { get; internal set; }
         public string NormalizedUserName { get; internal set; }
-        internal string PasswordHash { get; set; }
-
-        internal IEnumerable<UserLoginInfo> Logins
+        public string PasswordHash { get; internal set; }
+        public bool UsesTwoFactorAuthentication { get; internal set; }
+        public  IEnumerable<UserLoginInfo> Logins
         {
             get => _logins;
-            set
+            internal set
             {
                 if (value != null) _logins.AddRange(value);
             }
         }
 
-        internal IEnumerable<SimplifiedClaim> Claims
+        public  IEnumerable<SimplifiedClaim> Claims
         {
             get => _claims;
-            set
+            internal set
             {
                 if (value != null) _claims.AddRange(value);
             }

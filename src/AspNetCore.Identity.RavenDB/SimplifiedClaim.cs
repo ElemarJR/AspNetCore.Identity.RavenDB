@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace AspNetCore.Identity.RavenDB
 {
-    internal class SimplifiedClaim : IEquatable<SimplifiedClaim>, IEquatable<Claim>
+    public class SimplifiedClaim : IEquatable<SimplifiedClaim>, IEquatable<Claim>
     {
         public string Type { get; set; }
         public string Value { get; set; }
