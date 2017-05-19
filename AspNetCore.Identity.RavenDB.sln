@@ -20,6 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{F2D0A831
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "other\Playground\Playground.csproj", "{B330E524-DB5B-460F-9510-93015C7753D4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{9B903198-C42A-4CBB-8DC8-B995A79B8B66}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentitySample.Mvc", "samples\IdentitySample.Mvc\IdentitySample.Mvc.csproj", "{BDCE1269-A144-4C42-B74B-898D75EA6963}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +38,10 @@ Global
 		{B330E524-DB5B-460F-9510-93015C7753D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B330E524-DB5B-460F-9510-93015C7753D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B330E524-DB5B-460F-9510-93015C7753D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDCE1269-A144-4C42-B74B-898D75EA6963}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDCE1269-A144-4C42-B74B-898D75EA6963}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDCE1269-A144-4C42-B74B-898D75EA6963}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDCE1269-A144-4C42-B74B-898D75EA6963}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,5 +49,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E9797D5F-9494-4A2D-A4D3-C8BB3F2A4A37} = {C9A4ACFF-DE4D-4D0B-AE57-E2CAD2A6EE65}
 		{B330E524-DB5B-460F-9510-93015C7753D4} = {F2D0A831-6ED7-485C-B0EC-2EA0DFB1CA2C}
+		{BDCE1269-A144-4C42-B74B-898D75EA6963} = {9B903198-C42A-4CBB-8DC8-B995A79B8B66}
 	EndGlobalSection
 EndGlobal

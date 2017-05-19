@@ -48,17 +48,9 @@ namespace AspNetCore.Identity.RavenDB
         public IAsyncDocumentSession Session 
             => _session.Value;
 
-        public bool AutoSaveChanges { get; set; } = true;
-
         public Task SaveChanges(
-            CancellationToken cancellationToken = default(CancellationToken), 
-            bool forceSave = false
-            )
-        {
-            return forceSave || AutoSaveChanges
-                ? Session.SaveChangesAsync(cancellationToken)
-                : Task.CompletedTask;
-        }
+            CancellationToken cancellationToken = default(CancellationToken)
+            ) => Session.SaveChangesAsync(cancellationToken);
 
         #region IUserStore
         public Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
@@ -169,6 +161,8 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(user));
             }
+
+            user.CleanUp();
 
             var stored = await Session.LoadAsync<TUser>(user.Id, cancellationToken);
             var etag = Session.Advanced.GetEtagFor(stored);
@@ -661,7 +655,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return Task.FromResult(user.LockoutEndDate);
+            return Task.FromResult(user.Lockout?.EndDate);
 
         }
 
@@ -675,7 +669,12 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            user.LockoutEndDate = lockoutEnd;
+            if (user.Lockout == null)
+            {
+                user.Lockout = new LockoutInfo();
+            }
+
+            user.Lockout.EndDate = lockoutEnd;
             return Task.CompletedTask;
         }
 
@@ -688,7 +687,13 @@ namespace AspNetCore.Identity.RavenDB
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            var newAccessFailedCount = ++user.AccessFailedCount;
+
+            if (user.Lockout == null)
+            {
+                user.Lockout = new LockoutInfo();
+            }
+
+            var newAccessFailedCount = ++user.Lockout.AccessFailedCount;
             return Task.FromResult(newAccessFailedCount);
         }
 
@@ -702,7 +707,11 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            user.AccessFailedCount = 0;
+            if (user.Lockout != null)
+            {
+                user.Lockout.AccessFailedCount = 0;
+            }
+
             return Task.CompletedTask;
         }
 
@@ -716,7 +725,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return Task.FromResult(user.AccessFailedCount);
+            return Task.FromResult(user.Lockout?.AccessFailedCount ?? 0);
         }
 
         public Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken = default(CancellationToken))
@@ -729,7 +738,7 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return Task.FromResult(user.LockoutEnabled);
+            return Task.FromResult(user.Lockout != null && user.Lockout.Enabled);
         }
 
         public Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken = default(CancellationToken))
@@ -742,7 +751,12 @@ namespace AspNetCore.Identity.RavenDB
                 throw new ArgumentNullException(nameof(user));
             }
 
-            user.LockoutEnabled = enabled;
+            if (user.Lockout == null)
+            {
+                user.Lockout = new LockoutInfo();
+            }
+
+            user.Lockout.Enabled = enabled;
 
             return Task.CompletedTask;
         }

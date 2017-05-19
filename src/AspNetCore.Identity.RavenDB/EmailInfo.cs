@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Raven.Imports.Newtonsoft.Json;
 
 namespace AspNetCore.Identity.RavenDB
 {
@@ -15,5 +16,11 @@ namespace AspNetCore.Identity.RavenDB
 
         public static implicit operator EmailInfo(string input)
             => new EmailInfo {Address = input, NormalizedAddress = input};
+
+        [JsonIgnore]
+        public bool AllPropertiesAreSetToDefaults =>
+            Address == null &&
+            NormalizedAddress == null &&
+            ConfirmationTime == null;
     }
 }

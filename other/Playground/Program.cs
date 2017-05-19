@@ -18,9 +18,6 @@ namespace Playground
             userStore.SetPhoneNumberAsync(user, "+5554999420609").Wait();
             userStore.SetPhoneNumberConfirmedAsync(user, true);
             userStore.UpdateAsync(user).Wait();
-
-
-            Console.WriteLine(userStore.IncrementAccessFailedCountAsync(user).Result);
             //userStore.SetEmailAsync(user, "me@elemarjr.com").Wait();
             //userStore.SetEmailConfirmedAsync(user, true);
             //userStore.UpdateAsync(user).Wait();

@@ -10,16 +10,21 @@ namespace AspNetCore.Identity.RavenDB
         private readonly List<UserLoginInfo> _logins;
         private readonly List<SimplifiedClaim> _claims;
 
-        public RavenDBIdentityUser(string userName)
+        public RavenDBIdentityUser()
         {
-            UserName = userName ?? throw new ArgumentNullException(nameof(userName));
             _logins = new List<UserLoginInfo>();
             _claims = new List<SimplifiedClaim>();
         }
 
+        public RavenDBIdentityUser(string userName) : this()
+        {
+            UserName = userName ?? throw new ArgumentNullException(nameof(userName));
+        }
+
         public string Id { get; internal set; }
-        public string UserName { get; internal set; }
+        public string UserName { get; set; }
         public string NormalizedUserName { get; internal set; }
+        public EmailInfo Email { get; set; }
         public string PasswordHash { get; internal set; }
         public bool UsesTwoFactorAuthentication { get; internal set; }
         public  IEnumerable<UserLoginInfo> Logins
@@ -41,10 +46,8 @@ namespace AspNetCore.Identity.RavenDB
         }
 
         public string SecurityStamp { get; internal set; }
-        public EmailInfo Email { get; internal set; }
-        public DateTimeOffset? LockoutEndDate { get; internal set; }
-        public int AccessFailedCount { get; internal set; }
-        public bool LockoutEnabled { get; internal set; }
+        
+        public LockoutInfo Lockout { get; internal set; }
         public PhoneInfo Phone { get; internal set; }
 
         internal void AddLogin(UserLoginInfo login)
@@ -87,6 +90,24 @@ namespace AspNetCore.Identity.RavenDB
         internal void RemoveClaim(SimplifiedClaim claim)
         {
             _claims.Remove(claim);
+        }
+
+        internal void CleanUp()
+        {
+            if (Lockout != null && Lockout.AllPropertiesAreSetToDefaults)
+            {
+                Lockout = null;
+            }
+
+            if (Email != null && Email.AllPropertiesAreSetToDefaults)
+            {
+                Email = null;
+            }
+
+            if (Phone != null && Phone.AllPropertiesAreSetToDefaults)
+            {
+                Phone = null;
+            }
         }
     }
 }
